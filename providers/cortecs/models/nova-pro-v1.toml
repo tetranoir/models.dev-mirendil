@@ -18,8 +18,8 @@ output = 3.671
 
 [limit]
 context = 300_000
-output = 5_000
+output = 10_000
 
 [modalities]
-input = ["text", "image"]
+input = ["text", "image", "pdf"]
 output = ["text"]

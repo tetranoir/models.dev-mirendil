@@ -7,7 +7,4 @@ output = 10.635
 cache_read = 1.33
 
 [limit]
-output = 128_000
-
-[modalities]
-input = ["text", "image"]
+output = 16_000

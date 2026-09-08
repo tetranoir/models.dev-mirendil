@@ -16,6 +16,7 @@ export const ModelFamilyValues = [
   "gpt-sol",
   "gpt-terra",
   "gpt-luna",
+  "gpt-astra",
   "gpt-oss",
   "gpt-image",
 
@@ -52,6 +53,7 @@ export const ModelFamilyValues = [
 
   // Meta Muse
   "muse",
+  "muse-free",
 
   // Alibaba Qwen
   "qwen",
@@ -365,6 +367,9 @@ export const ModelFamilyValues = [
 
   // Conductor
   "fugu",
+
+  // Sakana Namazu
+  "sakana-namazu",
 
   // V0
   "v0",

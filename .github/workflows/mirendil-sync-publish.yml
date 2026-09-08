@@ -55,6 +55,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Generate SDK catalog and types
+        run: bun run generate
+        working-directory: packages/sdk
+
       - name: Validate catalog
         run: bun validate
 
@@ -66,6 +70,24 @@ jobs:
       - name: Test SDK
         run: bun run test
         working-directory: packages/sdk
+
+      - name: Build SDK
+        run: bun run build
+        working-directory: packages/sdk
+
+      - name: Commit refreshed SDK types
+        run: |
+          set -euo pipefail
+          status=$(git status --porcelain)
+          if [ -n "$status" ] && [ "$status" != " M packages/sdk/src/generated.ts" ]; then
+            echo "Unexpected uncommitted files; refusing to commit or publish."
+            git status --short
+            exit 1
+          fi
+          if [ -n "$status" ]; then
+            git add -- packages/sdk/src/generated.ts
+            git commit -m "chore(sdk): refresh generated model families"
+          fi
 
       - name: Push synchronized dev branch
         run: |

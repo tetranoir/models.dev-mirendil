@@ -2,3 +2,7 @@ base_model = "xai/grok-4.5"
 [[reasoning_options]]
 type = "effort"
 values = ["low", "medium", "high"]
+
+[experimental.modes.fast.provider]
+body = { service_tier = "priority" }
+headers = {}
