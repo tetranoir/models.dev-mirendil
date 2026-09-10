@@ -1,0 +1,14 @@
+base_model = "deepseek/deepseek-v4.1-flash"
+name = "DeepSeek V4.1 Flash Thinking"
+
+[[reasoning_options]]
+type = "effort"
+values = ["none", "low", "high", "max"]
+
+[cost]
+input = 0.1562
+output = 0.3124
+cache_read = 0.03124
+
+[limit]
+input = 1_000_000
