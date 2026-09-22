@@ -57,6 +57,8 @@ test("Mirendil router preserves verified canonical mappings and reasoning contro
     ["anthropic/claude-fable-5-1", "anthropic/claude-fable-5-1", ["low", "medium", "high", "xhigh", "max"]],
     ["z-ai/glm-5.3", "zhipuai/glm-5.3", ["low", "high", "max"]],
     ["z-ai/glm-5.3-flash", "zhipuai/glm-5.3-flash", ["low", "high", "max"]],
+    ["gpt-6-sol", "openai/gpt-6-sol", ["none", "low", "medium", "high", "xhigh", "max"]],
+    ["gpt-6-luna", "openai/gpt-6-luna", ["none", "low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-astra", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-astra-openrouter", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["codex-5.5", "openai/gpt-5.5", ["none", "low", "medium", "high", "xhigh"]],
@@ -83,6 +85,7 @@ test("Mirendil Grok priority mode is opt-in and preserves reasoning controls", (
     for (const [id, values] of [
       ["grok-4.5", ["low", "medium", "high"]],
       ["grok-4.6", ["low", "medium", "high", "xhigh"]],
+      ["grok-4.7", ["low", "medium", "high", "xhigh"]],
     ] as const) {
       const model = router.models[id]!
       expect(model.base_model).toBe(`xai/${id}`)
