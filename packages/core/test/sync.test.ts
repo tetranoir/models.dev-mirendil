@@ -449,6 +449,38 @@ test("syncs CrossModel's structured-output capability", () => {
   });
 });
 
+test("clears stale CrossModel context tiers only when source pricing is usable", () => {
+  const existing: ExistingModel = {
+    base_model: "alibaba/qwen3.8-max",
+    cost: {
+      input: 9,
+      output: 27,
+      tiers: [
+        {
+          tier: { type: "context", size: 200_000 },
+          input: 18,
+          output: 54,
+        },
+      ],
+    },
+  };
+
+  const authoritative = buildCrossModel(crossModelModel(), existing);
+  const absent = buildCrossModel(crossModelModel({ pricing: undefined }), existing);
+  const unusable = buildCrossModel(
+    crossModelModel({
+      pricing: {
+        tiers: [{ threshold: 0, input_micro_per_1m: 1_880_000 }],
+      },
+    }),
+    existing,
+  );
+
+  expect(authoritative?.cost).toEqual({ input: 1.88, output: 5.63 });
+  expect(absent?.cost).toEqual(existing.cost);
+  expect(unusable?.cost).toEqual(existing.cost);
+});
+
 test("parses CrossModel's nullable reasoning controls", () => {
   const parsed = CrossModelResponse.parse({
     data: [
@@ -2806,6 +2838,28 @@ test("resolves Eden AI aliases to the model they point at", () => {
   ).toBe("anthropic/claude-opus-5");
 });
 
+test("preserves model type when formatting synced TOML", () => {
+  const content = formatToml({
+    id: "typesafe/jev-latest",
+    type: "decision",
+    name: "Jev",
+    description: "System One model for typed decisions",
+    release_date: "2026-09-15",
+    last_updated: "2026-09-15",
+    attachment: false,
+    reasoning: false,
+    tool_call: false,
+    open_weights: false,
+    limit: { context: 64_000, output: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+  });
+
+  expect(Bun.TOML.parse(content)).toMatchObject({
+    type: "decision",
+    name: "Jev",
+  });
+});
+
 test("formats interleaved as a root field before reasoning option tables", () => {
   const content = formatToml({
     id: "example/model",
@@ -4401,7 +4455,7 @@ test("retains Merge Gateway models missing from an API-key-scoped response", () 
   expect(mergeGateway.deleteMissing).toBe(false);
 });
 
-test("parses Vercel pricing tiers with an implicit zero minimum", () => {
+test("translates Vercel pricing tiers with an implicit zero minimum", () => {
   const [model] = vercel.parseModels({
     data: [{
       id: "openai/gpt-5.6-luna",
@@ -4418,14 +4472,36 @@ test("parses Vercel pricing tiers with an implicit zero minimum", () => {
           { cost: "0.0000001", max: 272_000 },
           { cost: "0.0000002", min: 272_000 },
         ],
+        input_tiers: [
+          { cost: "0.000001", max: 272_000 },
+          { cost: "0.000002", min: 272_000 },
+        ],
+        output_tiers: [
+          { cost: "0.000006", max: 272_000 },
+          { cost: "0.000009", min: 272_000 },
+        ],
       },
     }],
   });
 
   expect(model).toBeDefined();
-  expect(buildVercelModel(model!, undefined)).toMatchObject({
-    cost: { input: 1, output: 6, cache_read: 0.1 },
+  const synced = buildVercelModel(model!, undefined);
+  expect(synced).toMatchObject({
+    cost: {
+      input: 1,
+      output: 6,
+      cache_read: 0.1,
+      tiers: [{
+        tier: { type: "context", size: 272_000 },
+        input: 2,
+        output: 9,
+        cache_read: 0.2,
+      }],
+    },
   });
+  expect(vercel.sameModel?.({
+    cost: { input: 1, output: 6, cache_read: 0.1 },
+  }, synced)).toBe(false);
 });
 
 test("Vercel factored models inherit temperature from base metadata", () => {
@@ -4538,6 +4614,83 @@ test("Vercel Claude Opus fast variants factor onto base opus metadata", () => {
   });
   expect(synced).not.toHaveProperty("description");
   expect(synced).not.toHaveProperty("family");
+});
+
+test("Vercel sync accepts evaluation and unknown future model types", () => {
+  const [evaluation, future] = vercel.parseModels({
+    data: [
+      {
+        id: "typesafe-ai/jev",
+        name: "Jev",
+        created: 1_755_815_280,
+        released: 1_789_430_400,
+        context_window: 0,
+        max_tokens: 0,
+        type: "evaluation",
+        pricing: { input: "0.000000042", output: "0" },
+      },
+      {
+        id: "example/future-model",
+        name: "Future Model",
+        created: 1_755_815_280,
+        context_window: 8_000,
+        max_tokens: 4_000,
+        type: "something-new",
+      },
+    ],
+  });
+
+  expect(evaluation).toBeDefined();
+  expect(future).toBeDefined();
+  expect(buildVercelModel(evaluation!, undefined)).toMatchObject({
+    cost: { input: 0.042, output: 0 },
+    limit: { context: 0, output: 0 },
+    modalities: { input: ["text"], output: ["text"] },
+  });
+  expect(buildVercelModel(future!, undefined)).toMatchObject({
+    limit: { context: 8_000, output: 4_000 },
+    modalities: { input: ["text"], output: ["text"] },
+  });
+});
+
+test("Vercel family inference requires word boundaries", () => {
+  const [jev, rerank, o3] = vercel.parseModels({
+    data: [
+      {
+        id: "typesafe-ai/jev",
+        name: "Jev",
+        created: 1_755_815_280,
+        context_window: 0,
+        max_tokens: 0,
+        type: "evaluation",
+      },
+      {
+        id: "cohere/rerank-v3.5",
+        name: "Cohere Rerank 3.5",
+        created: 1_733_000_000,
+        context_window: 4_096,
+        max_tokens: 4_096,
+        type: "reranking",
+      },
+      {
+        id: "example/o3",
+        name: "o3",
+        created: 1_745_000_000,
+        context_window: 200_000,
+        max_tokens: 100_000,
+        type: "language",
+      },
+    ],
+  });
+
+  // No fuzzy subsequence matches ("yi") or single-letter substring matches ("o").
+  expect(buildVercelModel(jev!, undefined).family).toBeUndefined();
+  expect(buildVercelModel(rerank!, undefined).family).toBeUndefined();
+  // Genuine o-series IDs still match, and keep their stamp when re-synced.
+  expect(buildVercelModel(o3!, undefined).family).toBe("o");
+  expect(buildVercelModel(o3!, { family: "o" }).family).toBe("o");
+  // Existing bogus "o" stamps self-heal on the next sync.
+  expect(buildVercelModel(rerank!, { family: "o" }).family).toBeUndefined();
 });
 
 test("Vercel empty existing reasoning_options falls back to the route base menu", () => {

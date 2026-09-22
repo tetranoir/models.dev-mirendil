@@ -11,4 +11,4 @@ cache_read = 0.03
 
 [limit]
 context = 1_048_576
-output = 26_214
+output = 32_768

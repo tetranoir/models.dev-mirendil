@@ -138,6 +138,7 @@ export type ModelFamily =
   | "mm-poly"
   | "model-router"
   | "morph"
+  | "motif"
   | "muse"
   | "muse-free"
   | "nano-banana"
