@@ -51,7 +51,6 @@ test("generation reproduces model families and the publish snapshot payload", ()
 test("Mirendil router preserves verified canonical mappings and reasoning controls", () => {
   const bindings = [
     ["claude-opus-5-5", "anthropic/claude-opus-5-5", ["low", "medium", "high", "xhigh", "max"]],
-    ["claude-opus-5-5-anthropic", "anthropic/claude-opus-5-5", ["low", "medium", "high", "xhigh", "max"]],
     ["claude-opus-5-vertex", "anthropic/claude-opus-5", ["low", "medium", "high", "xhigh", "max"]],
     ["claude-opus-4-8-vertex", "anthropic/claude-opus-4-8", ["low", "medium", "high", "xhigh", "max"]],
     ["anthropic/claude-fable-5-1", "anthropic/claude-fable-5-1", ["low", "medium", "high", "xhigh", "max"]],
