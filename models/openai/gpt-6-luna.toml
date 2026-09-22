@@ -1,5 +1,5 @@
 name = "GPT-6 Luna"
-description = "GPT-6 Luna is OpenAI's most efficient model for focused, high-volume tasks."
+description = "OpenAI's most efficient model for focused, high-volume tasks"
 family = "gpt-luna"
 release_date = "2026-09-22"
 last_updated = "2026-09-22"
