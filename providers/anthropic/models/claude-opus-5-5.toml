@@ -9,5 +9,6 @@ cache_read = 0.2
 cache_write = 5
 
 [experimental.modes.fast]
+kind = "speed"
 cost = { input = 8, output = 40, cache_read = 0.4, cache_write = 10 }
 provider = { body = { speed = "fast" }, headers = { anthropic-beta = "fast-mode-2026-02-01" } }

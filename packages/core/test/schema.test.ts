@@ -46,6 +46,30 @@ describe("model schema", () => {
     );
   });
 
+  test("accepts arbitrary mode names and leaves omitted kinds unclassified", () => {
+    const modes = {
+      "warp-speed": { kind: "speed" as const, provider: { body: { custom_flag: true } } },
+      pro: { kind: "reasoning" as const },
+      fast: { provider: { body: { speed: "fast" } } },
+    };
+    const result = AuthoredModel.parse(baseModel({ experimental: { modes } }));
+
+    expect(result.experimental?.modes).toEqual(modes);
+    expect(result.experimental?.modes?.fast?.kind).toBeUndefined();
+  });
+
+  test("rejects invalid experimental mode kinds", () => {
+    for (const kind of [true, "fast", "", null]) {
+      const result = AuthoredModel.safeParse({
+        ...baseModel({}),
+        experimental: { modes: { arbitrary: { kind } } },
+      });
+      expect(result.success).toBe(false);
+      if (result.success) continue;
+      expect(result.error.issues[0]?.path).toEqual(["experimental", "modes", "arbitrary", "kind"]);
+    }
+  });
+
   test("requires reasoning_options when reasoning is true", () => {
     const model = baseModel({ reasoning: true });
 

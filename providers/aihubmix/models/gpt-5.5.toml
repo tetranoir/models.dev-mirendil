@@ -33,5 +33,6 @@ input = ["text", "image", "pdf"]
 output = ["text"]
 
 [experimental.modes.fast]
+kind = "speed"
 cost = { input = 12.50, output = 75.00, cache_read = 1.25 }
 provider = { body = { service_tier = "priority" } }

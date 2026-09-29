@@ -2937,6 +2937,19 @@ test("formats empty reasoning options outside the interleaved table", () => {
 });
 
 test("formats provider overrides and experimental modes", () => {
+  const modes = {
+    fast: {
+      kind: "speed" as const,
+      cost: { input: 2, output: 4 },
+      provider: {
+        body: { speed: "fast" },
+        headers: { "anthropic-beta": "fast-mode-2026-02-01" },
+      },
+    },
+    "warp-speed": { kind: "speed" as const, provider: { body: { custom_flag: true } } },
+    pro: { kind: "reasoning" as const, provider: { body: { reasoning: { mode: "pro" } } } },
+    unclassified: { provider: { headers: { "x-mode": "unclassified" } } },
+  };
   const content = formatToml({
     id: "example/model",
     name: "Example Model",
@@ -2950,33 +2963,12 @@ test("formats provider overrides and experimental modes", () => {
     limit: { context: 1_000, output: 100 },
     modalities: { input: ["text"], output: ["text"] },
     provider: { body: { custom_flag: true } },
-    experimental: {
-      modes: {
-        fast: {
-          cost: { input: 2, output: 4 },
-          provider: {
-            body: { speed: "fast" },
-            headers: { "anthropic-beta": "fast-mode-2026-02-01" },
-          },
-        },
-      },
-    },
+    experimental: { modes },
   });
 
-  expect(Bun.TOML.parse(content)).toMatchObject({
-    provider: { body: { custom_flag: true } },
-    experimental: {
-      modes: {
-        fast: {
-          cost: { input: 2, output: 4 },
-          provider: {
-            body: { speed: "fast" },
-            headers: { "anthropic-beta": "fast-mode-2026-02-01" },
-          },
-        },
-      },
-    },
-  });
+  const parsed = Bun.TOML.parse(content);
+  expect(parsed.provider).toEqual({ body: { custom_flag: true } });
+  expect(parsed.experimental).toEqual({ modes });
 });
 
 test("resolves DeepInfra ByteDance IDs to canonical metadata", () => {

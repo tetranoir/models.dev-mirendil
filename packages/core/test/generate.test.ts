@@ -111,6 +111,48 @@ cache_read = 0.125
     });
   });
 
+  test("provider JSON preserves mode kinds without constraining mode names", async () => {
+    await withFixture(async (root) => {
+      await write(root, "providers/provider/provider.toml", providerToml("Provider"));
+      await write(root, "models/lab/model.toml", modelMetadataToml());
+      const modes = `
+[experimental.modes."warp-speed"]
+kind = "speed"
+cost = { input = 2, output = 4 }
+provider = { body = { custom_flag = true }, headers = { "x-mode" = "warp" } }
+
+[experimental.modes.pro]
+kind = "reasoning"
+provider = { body = { reasoning = { mode = "pro" } } }
+
+[experimental.modes.fast]
+provider = { body = { speed = "fast" } }
+`;
+      for (const [id, fields] of [
+        ["direct", providerFieldsToml()],
+        ["factored", 'base_model = "lab/model"\nreasoning_options = []'],
+      ]) {
+        await write(root, `providers/provider/models/${id}.toml`, `${fields}\n${modes}`);
+      }
+
+      const catalog = await generateCatalog(root);
+      for (const id of ["direct", "factored"]) {
+        const result = catalog.providers.provider?.models[id]?.experimental?.modes;
+        expect(result).toEqual({
+          "warp-speed": {
+            kind: "speed",
+            cost: { input: 2, output: 4 },
+            provider: { body: { custom_flag: true }, headers: { "x-mode": "warp" } },
+          },
+          pro: { kind: "reasoning", provider: { body: { reasoning: { mode: "pro" } } } },
+          fast: { provider: { body: { speed: "fast" } } },
+        });
+        expect(Object.entries(result ?? {}).filter(([, mode]) => mode.kind === "speed").map(([name]) => name))
+          .toEqual(["warp-speed"]);
+      }
+    });
+  });
+
   test("base_model_omit removes inherited metadata fields", async () => {
     await withFixture(async (root) => {
       await write(root, "providers/provider/provider.toml", providerToml("Provider"));

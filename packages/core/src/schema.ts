@@ -283,6 +283,7 @@ const ModelBase = z.object({
         .record(
           z
             .object({
+              kind: z.enum(["speed", "reasoning"]).optional(),
               cost: Cost.optional(),
               provider: z
                 .object({

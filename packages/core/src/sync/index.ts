@@ -1113,6 +1113,7 @@ export function formatToml(model: z.infer<typeof SyncedAuthoredModel>) {
 
   for (const [name, mode] of Object.entries(model.experimental?.modes ?? {})) {
     lines.push("", `[experimental.modes.${formatKey(name)}]`);
+    if (mode.kind !== undefined) lines.push(`kind = ${quote(mode.kind)}`);
     if (mode.cost !== undefined) lines.push(`cost = ${formatInlineValue(mode.cost)}`);
     if (mode.provider !== undefined) lines.push(`provider = ${formatInlineValue(mode.provider)}`);
   }

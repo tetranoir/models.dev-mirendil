@@ -85,6 +85,26 @@ test("Mirendil router preserves verified canonical mappings and reasoning contro
   })
 })
 
+test("snapshot classifies speed tiers separately from reasoning modes", async () => {
+  const snapshot = await import("../src/snapshot.js")
+  const bindings = [
+    ["mirendil-router", "gpt-6-astra", "ultrafast", "speed"],
+    ["mirendil-router", "grok-4.7", "fast", "speed"],
+    ["anthropic", "claude-opus-5-5", "fast", "speed"],
+    ["fireworks-ai", "accounts/fireworks/models/glm-5p3", "priority", "speed"],
+    ["openai", "gpt-6-sol", "fast", "speed"],
+    ["openai", "gpt-6-sol", "pro", "reasoning"],
+  ] as const
+  for (const [providerId, modelId, modeId, kind] of bindings) {
+    expect(snapshot.providers[providerId]?.models[modelId]?.experimental?.modes?.[modeId]?.kind).toBe(kind)
+  }
+
+  const modes = snapshot.providers["openai"]!.models["gpt-6-sol"]!.experimental!.modes!
+  expect(modes["pro"]?.kind).not.toBe("speed")
+  expect(Object.entries(modes).filter(([, mode]) => mode.kind === "speed").map(([id]) => id)).toEqual(["fast"])
+  expect(modes["pro"]?.provider?.body).toEqual({ reasoning: { mode: "pro" } })
+})
+
 test("Mirendil Grok priority mode is opt-in and preserves reasoning controls", () =>
   import("../src/snapshot.js").then((snapshot) => {
     const router = snapshot.providers["mirendil-router"]!

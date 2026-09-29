@@ -3,6 +3,9 @@ base_model = "xai/grok-4.5"
 type = "effort"
 values = ["low", "medium", "high"]
 
+[experimental.modes.fast]
+kind = "speed"
+
 [experimental.modes.fast.provider]
 body = { service_tier = "priority" }
 headers = {}

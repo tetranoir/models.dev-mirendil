@@ -4,5 +4,6 @@ status = "beta"
 reasoning_options = []
 
 [experimental.modes.fast]
+kind = "speed"
 cost = { input = 30, output = 150, cache_read = 3, cache_write = 37.5 }
 provider = { body = { speed = "fast" }, headers = { anthropic-beta = "fast-mode-2026-02-01" } }

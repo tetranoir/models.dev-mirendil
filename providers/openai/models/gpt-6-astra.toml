@@ -17,8 +17,10 @@ cache_read = 2.00
 cache_write = 25.00
 
 [experimental.modes.fast]
+kind = "speed"
 cost = { input = 20.00, output = 100.00, cache_read = 2.00, cache_write = 25.00 }
 provider = { body = { service_tier = "priority" } }
 
 [experimental.modes.pro]
+kind = "reasoning"
 provider = { body = { reasoning = { mode = "pro" } } }

@@ -32,5 +32,6 @@ output = 0.66
 cache_read = 0.007
 
 [experimental.modes.priority]
+kind = "speed"
 cost = { input = 0.275, output = 0.825, cache_read = 0.00875 }
 provider = { body = { service_tier = "priority" } }

@@ -4,6 +4,9 @@ reasoning_options = [{ type = "effort", values = ["low", "medium", "high", "xhig
 [provider]
 shape = "responses"
 
+[experimental.modes.ultrafast]
+kind = "speed"
+
 [experimental.modes.ultrafast.provider]
 body = { service_tier = "ultrafast" }
 headers = {}

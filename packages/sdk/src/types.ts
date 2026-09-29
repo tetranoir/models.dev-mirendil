@@ -178,6 +178,8 @@ export interface ModelMetadata {
 
 /** Per-mode overrides for experimental model modes. */
 export interface ExperimentalMode {
+  /** Mode classification. Only kind="speed" is a speed tier; absence is unclassified. */
+  kind?: "speed" | "reasoning"
   cost?: Cost
   provider?: {
     /** Extra request body fields enabling this mode. */

@@ -37,5 +37,6 @@ context = 512_000
 input = ["text"]
 
 [experimental.modes.priority]
+kind = "speed"
 cost = { input = 0.45, output = 1.8, cache_read = 0.09 }
 provider = { body = { service_tier = "priority" } }

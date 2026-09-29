@@ -291,6 +291,7 @@ function experimental(
   delete modes.priority;
   for (const mode of model.flagModes) {
     modes[mode.serverless_mode] = {
+      kind: "speed",
       cost: pricing(mode, cost),
       provider: { body: { service_tier: mode.service_tier! } },
     };

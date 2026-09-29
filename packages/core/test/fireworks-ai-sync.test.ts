@@ -268,6 +268,7 @@ test("updates Fireworks pricing and modalities while preserving authored facts",
     experimental: {
       modes: {
         priority: {
+          kind: "speed",
           cost: { input: 1.75, output: 5.5, cache_read: 0.175 },
           provider: { body: { service_tier: "priority" } },
         },

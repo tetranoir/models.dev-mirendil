@@ -4,5 +4,6 @@ status = "beta"
 reasoning_options = [{ type = "effort", values = ["none", "minimal", "low", "medium", "high"] }]
 
 [experimental.modes.fast]
+kind = "speed"
 cost = { input = 5, output = 30, cache_read = 0.5 }
 provider = { body = { service_tier = "priority" } }
