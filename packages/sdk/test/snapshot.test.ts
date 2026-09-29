@@ -58,6 +58,7 @@ test("Mirendil router preserves verified canonical mappings and reasoning contro
     ["z-ai/glm-5.3-flash", "zhipuai/glm-5.3-flash", ["low", "high", "max"]],
     ["gpt-6-sol", "openai/gpt-6-sol", ["none", "low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-luna", "openai/gpt-6-luna", ["none", "low", "medium", "high", "xhigh", "max"]],
+    ["gpt-6.1-sol", "openai/gpt-6.1-sol", ["low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-astra", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-astra-openrouter", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["codex-5.5", "openai/gpt-5.5", ["none", "low", "medium", "high", "xhigh"]],
