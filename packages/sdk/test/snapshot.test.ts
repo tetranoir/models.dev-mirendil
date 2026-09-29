@@ -72,6 +72,11 @@ test("Mirendil router preserves verified canonical mappings and reasoning contro
       expect(snapshot.models[base_model]).toBeDefined()
     }
     expect(router.models["gpt-6-astra"]?.provider?.shape).toBe("responses")
+    expect(router.models["gpt-6-astra"]?.experimental?.modes?.["ultrafast"]?.provider).toEqual({
+      body: { service_tier: "ultrafast" },
+      headers: {},
+    })
+    expect(router.models["gpt-6-astra"]?.experimental?.modes?.["fast"]).toBeUndefined()
     expect(router.models["codex-5.5"]?.provider?.shape).toBe("responses")
     expect(router.models["gpt-6-astra-openrouter"]?.provider?.shape).toBeUndefined()
     for (const id of ["fern-jade-s525", "fern-lemur-sota", "cheetah-v10"]) {
