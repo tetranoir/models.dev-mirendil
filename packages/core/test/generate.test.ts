@@ -99,6 +99,7 @@ cache_read = 0.125
       expect(catalog.providers.factored?.models.model).toEqual({
         ...catalog.providers.direct?.models.model,
         base_model: "lab/model",
+        canonical_model_id: "lab/model",
       });
       expect(catalog.providers.factored?.models.model).toHaveProperty(
         "base_model",

@@ -214,6 +214,8 @@ export interface Model {
   id: string
   /** Canonical model metadata ID inherited by this provider record. */
   base_model?: string
+  /** Canonical lab/model ID when this provider offering is linked to model metadata. */
+  canonical_model_id?: string
   type?: ModelType
   name: string
   description: string
