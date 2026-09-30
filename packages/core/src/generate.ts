@@ -119,10 +119,10 @@ async function generateProviders(
           model.error.cause = { modelPath, toml: merged };
           throw model.error;
         }
-        provider.data.models[modelID] = {
+        provider.data.models[modelID] = withProviderModes(provider.data, {
           ...normalizeModelCost(model.data),
           canonical_model_id: baseModel.data.base_model,
-        };
+        });
         continue;
       }
       const model = AuthoredModel.safeParse(toml);
@@ -130,7 +130,10 @@ async function generateProviders(
         model.error.cause = { modelPath, toml };
         throw model.error;
       }
-      provider.data.models[modelID] = normalizeModelCost(model.data);
+      provider.data.models[modelID] = withProviderModes(
+        provider.data,
+        normalizeModelCost(model.data),
+      );
     }
     if (Object.keys(provider.data.models).length === 0) {
       throw new Error(`Provider "${providerID}" has no models`, {
@@ -154,6 +157,22 @@ async function generateProviders(
   }
 
   return result;
+}
+
+// why: a provider-wide mode, such as a routing option the provider applies to every model, is authored once on the provider and copied onto each of its models, so consumers keep reading modes from the model record; a model's own mode of the same name wins.
+function withProviderModes<M extends { experimental?: { modes?: Record<string, unknown> } }>(
+  provider: Provider,
+  model: M,
+): M {
+  const providerModes = provider.experimental?.modes;
+  if (providerModes === undefined) return model;
+  return {
+    ...model,
+    experimental: {
+      ...model.experimental,
+      modes: { ...providerModes, ...model.experimental?.modes },
+    },
+  };
 }
 
 function mergeBaseModel(

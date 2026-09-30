@@ -270,6 +270,8 @@ export interface Provider {
   name: string
   /** URL of the provider's model documentation. */
   doc: string
+  /** Modes the provider offers for every model; generation copies them onto each model. */
+  experimental?: ModelExperimental
   /** Models offered by this provider, keyed by provider-scoped model ID. */
   models: Record<string, Model>
 }

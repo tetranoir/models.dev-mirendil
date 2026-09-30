@@ -15,3 +15,9 @@ npm = "@openrouter/ai-sdk-provider"
 # https://openrouter.ai/docs/guides/routing/provider-selection#requiring-providers-to-support-all-parameters (accessed 2026-06-25)
 api = "https://openrouter.ai/api/v1"
 doc = "https://openrouter.ai/models"
+
+# Latency routing sorts providers by lowest latency without load balancing; it applies to every model.
+# https://openrouter.ai/docs/guides/routing/provider-selection (accessed 2026-09-29)
+[experimental.modes.latency]
+kind = "speed"
+provider = { body = { provider = { sort = "latency" } } }

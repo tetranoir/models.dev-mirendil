@@ -105,6 +105,15 @@ test("snapshot classifies speed tiers separately from reasoning modes", async ()
   expect(modes["pro"]?.provider?.body).toEqual({ reasoning: { mode: "pro" } })
 })
 
+test("OpenRouter latency routing reaches every OpenRouter model from the provider record", async () => {
+  const snapshot = await import("../src/snapshot.js")
+  const openrouter = snapshot.providers["openrouter"]!
+  const latency = { kind: "speed", provider: { body: { provider: { sort: "latency" } } } } as const
+  expect(Object.values(openrouter.models).every((model) => model.experimental?.modes?.["latency"])).toBe(true)
+  expect(openrouter.models["openai/gpt-3.5-turbo-0613"]?.experimental?.modes?.["latency"]).toEqual(latency)
+  expect(snapshot.providers["openai"]?.models["gpt-6-sol"]?.experimental?.modes?.["latency"]).toBeUndefined()
+})
+
 test("Mirendil Grok priority mode is opt-in and preserves reasoning controls", () =>
   import("../src/snapshot.js").then((snapshot) => {
     const router = snapshot.providers["mirendil-router"]!

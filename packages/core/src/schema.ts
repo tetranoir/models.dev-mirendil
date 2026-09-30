@@ -247,6 +247,26 @@ export const ModelMetadata = ModelMetadataBase.strict();
 
 export type ModelMetadata = z.infer<typeof ModelMetadata>;
 
+export const ExperimentalMode = z
+  .object({
+    kind: z.enum(["speed", "reasoning"]).optional(),
+    cost: Cost.optional(),
+    provider: z
+      .object({
+        body: z.record(JsonValue).optional(),
+        headers: z.record(z.string()).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+export const ModelExperimental = z
+  .object({
+    modes: z.record(ExperimentalMode).optional(),
+  })
+  .strict();
+
 const ModelBase = z.object({
   id: z.string(),
   base_model: z.string().min(1, "Base model cannot be empty").optional(),
@@ -277,28 +297,7 @@ const ModelBase = z.object({
   open_weights: z.boolean(),
   limit: ProviderModelLimit,
   status: z.enum(["alpha", "beta", "deprecated"]).optional(),
-  experimental: z
-    .object({
-      modes: z
-        .record(
-          z
-            .object({
-              kind: z.enum(["speed", "reasoning"]).optional(),
-              cost: Cost.optional(),
-              provider: z
-                .object({
-                  body: z.record(JsonValue).optional(),
-                  headers: z.record(z.string()).optional(),
-                })
-                .strict()
-                .optional(),
-            })
-            .strict(),
-        )
-        .optional(),
-    })
-    .strict()
-    .optional(),
+  experimental: ModelExperimental.optional(),
   provider: z
     .object({
       npm: z.string().optional(),
@@ -398,6 +397,9 @@ export const Provider = z
         1,
         "Please provide a link to the provider documentation where models are listed",
       ),
+    // Modes a provider offers for every model it serves, such as a routing option. A model's own
+    // mode of the same name replaces the provider's.
+    experimental: ModelExperimental.optional(),
     models: z.record(Model),
   })
   .strict()
