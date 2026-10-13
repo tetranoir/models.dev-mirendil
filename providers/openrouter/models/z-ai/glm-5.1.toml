@@ -9,9 +9,10 @@ field = "reasoning_content"
 type = "toggle"
 
 [cost]
-input = 0.9646
-output = 3.0316
-cache_read = 0.17914
+input = 0.966
+output = 3.036
+cache_read = 0.1794
 
 [limit]
 context = 204_800
+output = 128_000
