@@ -64,6 +64,7 @@ test("Mirendil router preserves verified canonical mappings and reasoning contro
     ["gpt-6-astra-openrouter", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["codex-5.5", "openai/gpt-5.5", ["none", "low", "medium", "high", "xhigh"]],
     ["muse-spark-1.1", "meta/muse-spark-1.1", ["minimal", "low", "medium", "high", "xhigh"]],
+    ["muse-wonder-1.0", "meta/muse-wonder-1.0", ["minimal", "low", "medium", "high", "xhigh", "max"]],
   ] as const
   return import("../src/snapshot.js").then((snapshot) => {
     const router = snapshot.providers["mirendil-router"]!
