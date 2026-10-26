@@ -1,4 +1,5 @@
+schema = 2
 base_model = "anthropic/claude-haiku-4-5"
-[[reasoning_options]]
-type = "budget_tokens"
-min = 1_024
+
+[capabilities]
+reasoning = { supported = true, budget = { min = 1024 } }

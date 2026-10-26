@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs"
 import { expect, test } from "bun:test"
 import { ModelFamilyValues } from "@models.dev/core"
 import { generate, loadCatalog, snapshotPayload } from "../script/generate.ts"
@@ -20,13 +21,18 @@ test("snapshot exports providers, models, generatedAt, and a default catalog", a
 
 test("snapshot preserves canonical base_model relationships", async () => {
   const snapshot = await import("../src/snapshot.js")
-  const mapped = Object.values(snapshot.providers)
-    .flatMap((provider: any) => Object.values(provider.models))
-    .filter((model: any) => model.base_model !== undefined) as Array<{ base_model: string }>
+  const mapped = Object.entries(snapshot.providers).flatMap(([providerId, provider]: [string, any]) =>
+    Object.values(provider.models)
+      .filter((model: any) => model.base_model !== undefined)
+      .map((model: any) => [providerId, model.base_model as string] as const),
+  )
 
   expect(mapped.length).toBeGreaterThan(0)
-  for (const model of mapped) {
-    expect(snapshot.models[model.base_model]).toBeDefined()
+  for (const [providerId, baseModel] of mapped) {
+    // Upstream lets providers point at v2-only lab models (embeddings, audio), which the v1
+    // snapshot omits; every Mirendil router binding must resolve to a published model.
+    if (providerId === "mirendil-router") expect(snapshot.models[baseModel]).toBeDefined()
+    else expect(existsSync(new URL(`../../../models/${baseModel}.toml`, import.meta.url))).toBe(true)
   }
 })
 
@@ -46,7 +52,8 @@ test("generation reproduces model families and the publish snapshot payload", ()
         expect(afterSnapshot.split("\n")[1]).toBe(payload)
       }),
   )
-})
+// why: regenerating the full catalog takes ~7s locally since the schema 2 merge, over bun's 5s default.
+}, 60_000)
 
 test("Mirendil router preserves verified canonical mappings and reasoning controls", () => {
   const bindings = [
@@ -60,6 +67,9 @@ test("Mirendil router preserves verified canonical mappings and reasoning contro
     ["gpt-6-sol", "openai/gpt-6-sol", ["none", "low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-luna", "openai/gpt-6-luna", ["none", "low", "medium", "high", "xhigh", "max"]],
     ["gpt-6.1-sol", "openai/gpt-6.1-sol", ["low", "medium", "high", "xhigh", "max"]],
+    ["gpt-6.1-terra", "openai/gpt-6.1-terra", ["none", "low", "medium", "high", "xhigh", "max"]],
+    ["kimi-k3.1-pro", "moonshotai/kimi-k3.1-pro", ["none", "low", "high", "max"]],
+    ["minimax-m3.1-flash", "minimax/MiniMax-M3.1-Flash", ["low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-astra", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["gpt-6-astra-openrouter", "openai/gpt-6-astra", ["low", "medium", "high", "xhigh", "max"]],
     ["codex-5.5", "openai/gpt-5.5", ["none", "low", "medium", "high", "xhigh"]],

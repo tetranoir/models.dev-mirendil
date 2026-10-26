@@ -1,11 +1,10 @@
+schema = 2
 base_model = "xai/grok-4.5"
-[[reasoning_options]]
-type = "effort"
-values = ["low", "medium", "high"]
+
+[capabilities]
+reasoning = { supported = true, effort = ["low", "medium", "high"] }
 
 [experimental.modes.fast]
 kind = "speed"
-
-[experimental.modes.fast.provider]
 body = { service_tier = "priority" }
 headers = {}

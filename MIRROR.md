@@ -12,6 +12,12 @@ Provider models authored with `base_model` retain that canonical ID in generated
 
 A provider may also declare `experimental.modes` in its `provider.toml` for a mode it applies to every model it serves. Generation copies those modes onto each of the provider's models, and a model's own mode of the same name replaces the provider's. OpenRouter declares its documented latency routing (`provider.sort = "latency"`) this way, so no synced OpenRouter model record carries a mirror-local edit.
 
+## Schema 2
+
+Upstream reads only schema 2 model files since 2026-10-21 and translates them to the v1 records the package publishes (`packages/core/src/translate.ts`). Mirror-local files follow the same format: `schema = 2`, reasoning controls under `[capabilities] reasoning = { supported = true, effort = [...] }` (or `toggle` / `budget`), a Responses-shaped router model as an empty `[api.responses]` table, and modes as `[experimental.modes.<name>]` with `kind`, `body` and `headers` at the top level. The published v1 snapshot is unchanged: `kind` passes through `toV1Experimental`, and sync writes it back through `model-file-v2.ts`. `provider.toml` has no schema 2 form, so provider-wide modes keep the v1 shape (`provider = { body = ... }`).
+
+Upstream lets providers point `base_model` at v2-only lab models (embeddings, audio) that the v1 snapshot omits. The snapshot test therefore requires published canonical models only for `mirendil-router`.
+
 ## Automated sync and publish
 
 `.github/workflows/mirendil-sync-publish.yml` runs daily and on demand. It merges `upstream/dev`, installs with the lockfile, generates the SDK, validates the catalog, runs mapping contract and SDK tests, and builds the SDK. After those checks pass, it commits changes to `packages/sdk/src/generated.ts` only. This tracked family union must follow upstream's `ModelFamilyValues`; the snapshot module is ignored because it includes a generation timestamp. Any other uncommitted file stops the workflow. A final clean-tree check runs before the push. The workflow then publishes only when the snapshot payload differs from npm. Configure the repository Actions secret `NPM_API_KEY`; no token is committed. GitHub Actions requests `id-token: write`, so npm attaches provenance when publishing.
